@@ -1,2 +1,2 @@
-# iov-cloud-mpt-auth
-从零开始练手车联网MPT认证授权中心（基于RuoYi）
+# iov-cloud-sec-eiam
+从零开始练手车联网员工身份及访问管理系统（基于RuoYi）

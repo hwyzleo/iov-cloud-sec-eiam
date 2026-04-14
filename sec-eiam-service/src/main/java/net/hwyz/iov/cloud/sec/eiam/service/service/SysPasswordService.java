@@ -1,11 +1,11 @@
-package net.hwyz.iov.cloud.mpt.auth.service.service;
+package net.hwyz.iov.cloud.sec.eiam.service.service;
 
 import net.hwyz.iov.cloud.framework.common.constant.CacheConstants;
-import net.hwyz.iov.cloud.framework.common.constant.MptConstants;
 import net.hwyz.iov.cloud.framework.common.exception.ServiceException;
 import net.hwyz.iov.cloud.framework.redis.service.RedisService;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
-import net.hwyz.iov.cloud.mpt.system.api.domain.SysUser;
+import net.hwyz.iov.cloud.framework.web.constant.MptConstants;
+import net.hwyz.iov.cloud.edd.mpt.api.domain.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

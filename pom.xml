@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <packaging>pom</packaging>
     <modules>
-        <module>auth-service</module>
+        <module>sec-eiam-service</module>
     </modules>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.hwyz.iov.cloud.mpt</groupId>
-    <artifactId>auth</artifactId>
+    <groupId>net.hwyz.iov.cloud.sec</groupId>
+    <artifactId>sec-eiam</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <description>认证授权中心</description>
+    <description>员工身份及访问管理系统</description>
     
 </project>

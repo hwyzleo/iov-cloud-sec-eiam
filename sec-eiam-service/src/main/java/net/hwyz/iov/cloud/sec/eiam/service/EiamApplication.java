@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.mpt.auth.service;
+package net.hwyz.iov.cloud.sec.eiam.service;
 
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.security.annotation.EnableCustomFeignClients;
@@ -14,10 +14,10 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 @Slf4j
 @EnableCustomFeignClients
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-public class AuthApplication {
+public class EiamApplication {
     public static void main(String[] args) {
         System.setProperty("nacos.logging.default.config.enabled", "false");
-        SpringApplication.run(AuthApplication.class, args);
+        SpringApplication.run(EiamApplication.class, args);
         logger.info("应用启动成功");
     }
 }

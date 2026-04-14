@@ -1,4 +1,4 @@
-package net.hwyz.iov.cloud.mpt.auth.service.form;
+package net.hwyz.iov.cloud.sec.eiam.service.form;
 
 /**
  * 用户注册对象

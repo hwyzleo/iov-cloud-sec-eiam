@@ -10,11 +10,12 @@
         <relativePath/>
     </parent>
 
-    <groupId>net.hwyz.iov.cloud.mpt</groupId>
-    <artifactId>auth-service</artifactId>
+    <groupId>net.hwyz.iov.cloud.sec</groupId>
+    <artifactId>sec-eiam-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
+        <edd-mpt-version>0.0.1-SNAPSHOT</edd-mpt-version>
     </properties>
 
     <dependencies>
@@ -38,35 +39,10 @@
 
         <!-- 管理后台系统接口 -->
         <dependency>
-            <groupId>net.hwyz.iov.cloud.mpt</groupId>
-            <artifactId>system-api</artifactId>
+            <groupId>net.hwyz.iov.cloud.edd</groupId>
+            <artifactId>edd-mpt-api</artifactId>
+            <version>${edd-mpt-version}</version>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>maven-snapshots</id>
-            <url>http://nexus-internal.rox-motor.com:8081/repository/maven-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven-snapshots</id>
-            <url>http://nexus-internal.rox-motor.com:8081/repository/maven-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
 </project>

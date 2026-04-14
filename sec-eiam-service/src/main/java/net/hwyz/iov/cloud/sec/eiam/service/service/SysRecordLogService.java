@@ -1,11 +1,11 @@
-package net.hwyz.iov.cloud.mpt.auth.service.service;
+package net.hwyz.iov.cloud.sec.eiam.service.service;
 
 import cn.hutool.core.util.StrUtil;
-import net.hwyz.iov.cloud.framework.common.constant.MptConstants;
 import net.hwyz.iov.cloud.framework.common.constant.MptSecurityConstants;
 import net.hwyz.iov.cloud.framework.common.util.IpUtil;
-import net.hwyz.iov.cloud.mpt.system.api.RemoteLogService;
-import net.hwyz.iov.cloud.mpt.system.api.domain.SysLogininfor;
+import net.hwyz.iov.cloud.framework.web.constant.MptConstants;
+import net.hwyz.iov.cloud.edd.mpt.api.RemoteLogService;
+import net.hwyz.iov.cloud.edd.mpt.api.domain.SysLogininfor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
