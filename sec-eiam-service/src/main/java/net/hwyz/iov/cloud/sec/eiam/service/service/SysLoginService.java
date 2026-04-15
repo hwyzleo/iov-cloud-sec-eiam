@@ -2,8 +2,12 @@ package net.hwyz.iov.cloud.sec.eiam.service.service;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
+import net.hwyz.iov.cloud.edd.mpt.api.RemoteUserService;
+import net.hwyz.iov.cloud.edd.mpt.api.domain.SysUser;
+import net.hwyz.iov.cloud.edd.mpt.api.model.LoginUser;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.constant.CacheConstants;
+import net.hwyz.iov.cloud.framework.common.constant.MptSecurityConstants;
 import net.hwyz.iov.cloud.framework.common.constant.MptUserConstants;
 import net.hwyz.iov.cloud.framework.common.enums.MptUserStatus;
 import net.hwyz.iov.cloud.framework.common.exception.ServiceException;
@@ -12,10 +16,6 @@ import net.hwyz.iov.cloud.framework.common.util.IpUtil;
 import net.hwyz.iov.cloud.framework.redis.service.RedisService;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.framework.web.constant.MptConstants;
-import net.hwyz.iov.cloud.framework.common.constant.MptSecurityConstants;
-import net.hwyz.iov.cloud.edd.mpt.api.RemoteUserService;
-import net.hwyz.iov.cloud.edd.mpt.api.domain.SysUser;
-import net.hwyz.iov.cloud.edd.mpt.api.model.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,7 +68,7 @@ public class SysLoginService {
         // 查询用户信息
         ApiResponse<LoginUser> userResult = remoteUserService.getUserInfo(username, MptSecurityConstants.INNER);
 
-        if (!"200".equals(userResult.getCode())) {
+        if (!"000000".equals(userResult.getCode())) {
             throw new ServiceException(userResult.getMessage());
         }
 
@@ -131,7 +131,7 @@ public class SysLoginService {
         sysUser.setPassword(SecurityUtils.encryptPassword(password));
         ApiResponse<?> registerResult = remoteUserService.registerUserInfo(sysUser, MptSecurityConstants.INNER);
 
-        if (!"200".equals(registerResult.getCode())) {
+        if (!"000000".equals(registerResult.getCode())) {
             throw new ServiceException(registerResult.getMessage());
         }
         recordLogService.recordLogininfor(username, MptConstants.REGISTER, "注册成功");
