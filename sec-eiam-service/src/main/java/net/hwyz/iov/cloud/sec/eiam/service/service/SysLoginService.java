@@ -7,11 +7,11 @@ import net.hwyz.iov.cloud.edd.mpt.api.domain.SysUser;
 import net.hwyz.iov.cloud.edd.mpt.api.model.LoginUser;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.constant.CacheConstants;
-import net.hwyz.iov.cloud.framework.common.constant.MptSecurityConstants;
+import net.hwyz.iov.cloud.framework.common.constant.SecurityConstants;
 import net.hwyz.iov.cloud.framework.common.constant.MptUserConstants;
 import net.hwyz.iov.cloud.framework.common.enums.MptUserStatus;
 import net.hwyz.iov.cloud.framework.common.exception.ServiceException;
-import net.hwyz.iov.cloud.framework.common.util.DateUtil;
+import net.hwyz.iov.cloud.framework.common.util.DateTimeUtil;
 import net.hwyz.iov.cloud.framework.common.util.IpUtil;
 import net.hwyz.iov.cloud.framework.redis.service.RedisService;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
@@ -66,7 +66,7 @@ public class SysLoginService {
             throw new ServiceException("很遗憾，访问IP已被列入系统黑名单");
         }
         // 查询用户信息
-        ApiResponse<LoginUser> userResult = remoteUserService.getUserInfo(username, MptSecurityConstants.INNER);
+        ApiResponse<LoginUser> userResult = remoteUserService.getUserInfo(username, SecurityConstants.INNER);
 
         if (!"000000".equals(userResult.getCode())) {
             throw new ServiceException(userResult.getMessage());
@@ -99,8 +99,8 @@ public class SysLoginService {
         // 更新用户登录IP
         sysUser.setLoginIp(IpUtil.getIpAddr());
         // 更新用户登录时间
-        sysUser.setLoginDate(DateUtil.getNowDate());
-        remoteUserService.recordUserLogin(sysUser, MptSecurityConstants.INNER);
+        sysUser.setLoginDate(DateTimeUtil.getNowDate());
+        remoteUserService.recordUserLogin(sysUser, SecurityConstants.INNER);
     }
 
     public void logout(String loginName) {
@@ -129,7 +129,7 @@ public class SysLoginService {
         sysUser.setUserName(username);
         sysUser.setNickName(username);
         sysUser.setPassword(SecurityUtils.encryptPassword(password));
-        ApiResponse<?> registerResult = remoteUserService.registerUserInfo(sysUser, MptSecurityConstants.INNER);
+        ApiResponse<?> registerResult = remoteUserService.registerUserInfo(sysUser, SecurityConstants.INNER);
 
         if (!"000000".equals(registerResult.getCode())) {
             throw new ServiceException(registerResult.getMessage());
