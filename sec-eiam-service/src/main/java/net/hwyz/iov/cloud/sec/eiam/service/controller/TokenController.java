@@ -3,15 +3,15 @@ package net.hwyz.iov.cloud.sec.eiam.service.controller;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import net.hwyz.iov.cloud.edd.mpt.api.model.LoginUser;
 import net.hwyz.iov.cloud.framework.common.bean.ApiResponse;
 import net.hwyz.iov.cloud.framework.common.util.JwtUtil;
 import net.hwyz.iov.cloud.framework.security.auth.AuthUtil;
 import net.hwyz.iov.cloud.framework.security.service.TokenService;
-import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
+import net.hwyz.iov.cloud.framework.web.context.SecurityContextHolder;
 import net.hwyz.iov.cloud.sec.eiam.service.form.LoginBody;
 import net.hwyz.iov.cloud.sec.eiam.service.form.RegisterBody;
 import net.hwyz.iov.cloud.sec.eiam.service.service.SysLoginService;
-import net.hwyz.iov.cloud.edd.mpt.api.model.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,7 +41,7 @@ public class TokenController {
 
     @DeleteMapping("logout")
     public ApiResponse<?> logout(HttpServletRequest request) {
-        String token = SecurityUtils.getToken(request);
+        String token = SecurityContextHolder.getToken(request);
         if (StrUtil.isNotEmpty(token)) {
             String username = JwtUtil.getUserName(token);
             // 删除用户缓存记录
