@@ -1,6 +1,3 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: sec-eiam
@@ -8,10 +5,10 @@ spring:
     nacos:
       discovery:
         server-addr: ${NACOS_URL:127.0.0.1:8848}
-        namespace: 32c13f29-1aa6-468a-bacb-81be7f437dc9
+        namespace: ${NACOS_NAMESPACE:32c13f29-1aa6-468a-bacb-81be7f437dc9}
       config:
         server-addr: ${NACOS_URL:127.0.0.1:8848}
-        namespace: 32c13f29-1aa6-468a-bacb-81be7f437dc9
+        namespace: ${NACOS_NAMESPACE:32c13f29-1aa6-468a-bacb-81be7f437dc9}
         name: sec-eiam
         file-extension: yaml
         shared-configs:
