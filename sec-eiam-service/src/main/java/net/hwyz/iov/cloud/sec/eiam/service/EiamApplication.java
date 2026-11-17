@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.security.annotation.EnableCustomFeignClients;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * 认证授权中心
@@ -13,7 +13,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
  */
 @Slf4j
 @EnableCustomFeignClients
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@EnableScheduling
+@SpringBootApplication
 public class EiamApplication {
     public static void main(String[] args) {
         System.setProperty("nacos.logging.default.config.enabled", "false");

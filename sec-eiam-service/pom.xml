@@ -16,6 +16,7 @@
 
     <properties>
         <edd-mpt-version>0.0.1-SNAPSHOT</edd-mpt-version>
+        <edd-org-version>0.0.1-SNAPSHOT</edd-org-version>
     </properties>
 
     <dependencies>
@@ -35,6 +36,19 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+
+        <!-- 框架：MySQL（身份目录持久化，SEC-EIAM-DSN-CR-002） -->
+        <dependency>
+            <groupId>net.hwyz.iov.cloud.framework</groupId>
+            <artifactId>framework-mysql-starter</artifactId>
+        </dependency>
+
+        <!-- 组织服务接口（员工增量同步） -->
+        <dependency>
+            <groupId>net.hwyz.iov.cloud.edd</groupId>
+            <artifactId>edd-org-api</artifactId>
+            <version>${edd-org-version}</version>
         </dependency>
 
         <!-- 管理后台系统接口 -->

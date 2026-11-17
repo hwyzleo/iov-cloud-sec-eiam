@@ -38,6 +38,9 @@ public class SysLoginService {
     @Autowired
     private RedisService redisService;
 
+    @Autowired
+    private IdentityGuard identityGuard;
+
     /**
      * 登录
      */
@@ -82,6 +85,15 @@ public class SysLoginService {
             recordLogService.recordLogininfor(username, MptConstants.LOGIN_FAIL, "用户已停用，请联系管理员");
             throw new ServiceException("对不起，您的账号：" + username + " 已停用");
         }
+        // 员工身份目录校验（SEC-EIAM-DSN-CR-002 / US-028）：停用、离职、删除、目录缺失均拒绝登录
+        try {
+            identityGuard.assertLoginAllowed(user.getEmployeeId());
+        } catch (ServiceException e) {
+            recordLogService.recordLogininfor(username, MptConstants.LOGIN_FAIL, e.getMessage());
+            throw e;
+        }
+        // 会话携带员工标识，供下游服务定位员工主数据
+        userInfo.setEmployeeId(user.getEmployeeId());
         passwordService.validate(user, password);
         recordLogService.recordLogininfor(username, MptConstants.LOGIN_SUCCESS, "登录成功");
         recordLoginInfo(user.getUserId());

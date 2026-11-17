@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    # 身份目录库（与 db_mpt / db_org 同实例，独立 schema）；可由 Nacos sec-eiam.yaml 覆盖
+    db-name: db_eiam
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    encoding: UTF-8
+
+mybatis-plus:
+  type-aliases-package: net.hwyz.iov.cloud.sec.eiam.service.infrastructure.persistence.po
+
+eiam:
+  sync:
+    enabled: true
+    interval-ms: 300000
+    page-size: 200
+    provision-mpt: true
+  oauth:
+    code-ttl-seconds: 60
+  identity:
+    # 紧急旁路：false 时可临时跳过身份目录校验（默认开启）
+    check-enabled: true

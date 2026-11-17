@@ -359,7 +359,8 @@ class MptLoginDecodeIntegrationTest {
             FeignAutoConfiguration.class
     })
     @EnableFeignClients(clients = RemoteUserService.class)
-    @Import({EiamJacksonConfig.class, SysLoginService.class, SysPasswordService.class, SysRecordLogService.class})
+    @Import({EiamJacksonConfig.class, SysLoginService.class, SysPasswordService.class, SysRecordLogService.class,
+            net.hwyz.iov.cloud.sec.eiam.service.service.IdentityGuard.class})
     static class TestApplication {
 
         /**
@@ -372,6 +373,14 @@ class MptLoginDecodeIntegrationTest {
         @Bean
         RedisTemplate<Object, Object> redisTemplate() {
             return Mockito.mock(RedisTemplate.class);
+        }
+
+        /**
+         * 身份目录校验：由真实 IdentityGuard + mock mapper 组成；测试用账号未绑定员工（employeeId 为空）时自动跳过。
+         */
+        @Bean
+        net.hwyz.iov.cloud.sec.eiam.service.infrastructure.persistence.mapper.EiamIdentityMapper eiamIdentityMapper() {
+            return Mockito.mock(net.hwyz.iov.cloud.sec.eiam.service.infrastructure.persistence.mapper.EiamIdentityMapper.class);
         }
 
         @Bean
