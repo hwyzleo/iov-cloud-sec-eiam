@@ -44,6 +44,11 @@ public class OAuthController {
     @Autowired
     private OAuthService oauthService;
 
+    @Autowired
+    private net.hwyz.iov.cloud.sec.eiam.service.service.SysLoginService sysLoginService;
+
+    private static final String LOGIN_PATH = "/oauth2/login";
+
     /**
      * 授权端点：校验客户端与回调，生成一次性授权码并回跳
      */
@@ -56,10 +61,11 @@ public class OAuthController {
 
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser == null) {
-            // 未登录：不生成授权码，要求前端先完成登录（/auth/login）
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":\"401005\",\"message\":\"未登录，请先通过账密登录后再发起单点登录\"}");
+            // 未登录：跳转 EIAM 内置登录页（凭据仍由 MPT 校验）
+            String loginUrl = LOGIN_PATH + "?client_id=" + URLEncoder.encode(client_id, StandardCharsets.UTF_8)
+                    + "&redirect_uri=" + URLEncoder.encode(redirect_uri, StandardCharsets.UTF_8)
+                    + (state == null ? "" : "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8));
+            response.sendRedirect(loginUrl);
             return;
         }
         Long employeeId = loginUser.getEmployeeId();
@@ -90,5 +96,64 @@ public class OAuthController {
             throw new ServiceException(EiamErrorCode.SSO_CODE_INVALID.getMessage());
         }
         return ApiResponse.ok(oauthService.exchange(code, client_id, redirect_uri));
+    }
+
+    /**
+     * EIAM 单点登录页（最小实现：由本服务承载，凭据仍由 MPT 校验）
+     */
+    @GetMapping("/login")
+    public void loginPage(@RequestParam String client_id,
+                          @RequestParam String redirect_uri,
+                          @RequestParam(required = false) String state,
+                          HttpServletResponse response) throws IOException {
+        clientValidator.validate(client_id, redirect_uri);
+        response.setContentType("text/html;charset=UTF-8");
+        StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"/>")
+            .append("<title>EIAM 单点登录</title><style>body{font-family:sans-serif;background:#f5f7fa;display:flex;")
+            .append("align-items:center;justify-content:center;height:100vh;margin:0}.card{background:#fff;padding:32px;")
+            .append("border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.1);width:320px}h3{margin:0 0 20px;text-align:center}")
+            .append("input{width:100%;padding:10px;margin-bottom:14px;border:1px solid #dcdfe6;border-radius:4px;box-sizing:border-box}")
+            .append("button{width:100%;padding:10px;background:#409eff;color:#fff;border:0;border-radius:4px;cursor:pointer}")
+            .append("</style></head><body><form class=\"card\" method=\"post\" action=\"").append(LOGIN_PATH).append("\">")
+            .append("<h3>EIAM 单点登录</h3>")
+            .append("<input name=\"username\" placeholder=\"工号/账号\" autocomplete=\"off\"/>")
+            .append("<input name=\"password\" type=\"password\" placeholder=\"密码\" autocomplete=\"off\"/>")
+            .append("<input type=\"hidden\" name=\"client_id\" value=\"").append(escape(client_id)).append("\"/>")
+            .append("<input type=\"hidden\" name=\"redirect_uri\" value=\"").append(escape(redirect_uri)).append("\"/>")
+            .append("<input type=\"hidden\" name=\"state\" value=\"").append(escape(state == null ? "" : state)).append("\"/>")
+            .append("<button type=\"submit\">登 录</button></form></body></html>");
+        response.getWriter().write(html.toString());
+    }
+
+    /**
+     * EIAM 单点登录表单提交：校验凭据后生成一次性授权码并回跳客户端
+     */
+    @PostMapping("/login")
+    public void doLogin(@RequestParam String username,
+                        @RequestParam String password,
+                        @RequestParam String client_id,
+                        @RequestParam String redirect_uri,
+                        @RequestParam(required = false) String state,
+                        HttpServletResponse response) throws IOException {
+        clientValidator.validate(client_id, redirect_uri);
+        LoginUser loginUser = sysLoginService.login(username, password);
+        Long employeeId = loginUser.getEmployeeId();
+        if (employeeId == null) {
+            response.setContentType("text/html;charset=UTF-8");
+            response.getWriter().write("<html><body style=\"font-family:sans-serif\">该账号未绑定员工，无法使用单点登录，请联系管理员。</body></html>");
+            return;
+        }
+        String code = authorizationCodeStore.issue(client_id, employeeId, redirect_uri);
+        String location = redirect_uri + (redirect_uri.contains("?") ? "&" : "?") + "code=" + code
+                + (state == null ? "" : "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8));
+        response.sendRedirect(location);
+    }
+
+    private String escape(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }
