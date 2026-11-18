@@ -47,6 +47,9 @@ public class OAuthController {
     @Autowired
     private net.hwyz.iov.cloud.sec.eiam.service.service.SysLoginService sysLoginService;
 
+    /**
+     * 登录页相对路径（相对当前请求目录 `/oauth2/`），保证在网关外部前缀（如 `/prod-api/auth`）下同样可达
+     */
     private static final String LOGIN_PATH = "/oauth2/login";
 
     /**
@@ -64,10 +67,15 @@ public class OAuthController {
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser == null) {
             // 未登录：跳转 EIAM 内置登录页（凭据仍由 MPT 校验）
-            String loginUrl = LOGIN_PATH + "?client_id=" + URLEncoder.encode(client_id, StandardCharsets.UTF_8)
+            // 相对地址：浏览器按当前外部路径（如 /prod-api/auth/oauth2/authorize）解析为同名前缀下的登录页，
+            // 因此无需对外暴露 EIAM 独立端口。
+            String loginUrl = "login?client_id=" + URLEncoder.encode(client_id, StandardCharsets.UTF_8)
                     + "&redirect_uri=" + URLEncoder.encode(redirect_uri, StandardCharsets.UTF_8)
                     + (state == null ? "" : "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8));
-            response.sendRedirect(loginUrl);
+            // 手写 302：相对 Location 由浏览器按外部 URL（含 /prod-api/auth 前缀）解析；
+            // sendRedirect 会基于容器内部路径生成绝对地址，导致丢失网关前缀。
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.setHeader("Location", loginUrl);
             return;
         }
         Long employeeId = loginUser.getEmployeeId();
@@ -119,7 +127,7 @@ public class OAuthController {
             .append("border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.1);width:320px}h3{margin:0 0 20px;text-align:center}")
             .append("input{width:100%;padding:10px;margin-bottom:14px;border:1px solid #dcdfe6;border-radius:4px;box-sizing:border-box}")
             .append("button{width:100%;padding:10px;background:#409eff;color:#fff;border:0;border-radius:4px;cursor:pointer}")
-            .append("</style></head><body><form class=\"card\" method=\"post\" action=\"").append(LOGIN_PATH).append("\">")
+            .append("</style></head><body><form class=\"card\" method=\"post\" action=\"\">")
             .append("<h3>EIAM 单点登录</h3>")
             .append("<input name=\"username\" placeholder=\"工号/账号\" autocomplete=\"off\"/>")
             .append("<input name=\"password\" type=\"password\" placeholder=\"密码\" autocomplete=\"off\"/>")
