@@ -142,6 +142,21 @@ class EiamSsoLoginServiceTest {
         verify(credentialService).changePassword(11L, "old-pwd", "new-pwd-123");
     }
 
+    @Test
+    @DisplayName("登录审计写入失败（MPT 日志不可用）不影响登录结果")
+    void auditFailureDoesNotBreakLogin() {
+        when(identityMapper.selectOne(any())).thenReturn(identity());
+        when(credentialService.verify(any(), anyString())).thenReturn(EiamCredentialPo.builder().uid(11L).build());
+        when(mptUserBindingClient.getUserByEmployeeId(eq(1001L), anyString())).thenReturn(ApiResponse.ok(loginUser()));
+        org.mockito.Mockito.doThrow(new RuntimeException("MPT log down"))
+                .when(recordLogService).recordLogininfor(anyString(), anyString(), anyString());
+
+        LoginUser loginUser = eiamSsoLoginService.authenticate("E1001", "pwd");
+
+        assertNotNull(loginUser);
+        assertEquals(1001L, loginUser.getEmployeeId());
+    }
+
     private EiamIdentityPo identity() {
         return EiamIdentityPo.builder()
                 .uid(11L)

@@ -70,10 +70,10 @@ public class EiamSsoLoginService {
             identityGuard.assertLoginAllowed(identity.getEmployeeId());
             credentialService.verify(identity, password);
             LoginUser loginUser = loadLoginUser(identity.getEmployeeId());
-            recordLogService.recordLogininfor(username, MptConstants.LOGIN_SUCCESS, "EIAM 凭据登录成功");
+            recordAudit(username, MptConstants.LOGIN_SUCCESS, "EIAM 凭据登录成功");
             return loginUser;
         } catch (RuntimeException e) {
-            recordLogService.recordLogininfor(username, MptConstants.LOGIN_FAIL, failureMessage(e));
+            recordAudit(username, MptConstants.LOGIN_FAIL, failureMessage(e));
             throw e;
         }
     }
@@ -93,7 +93,7 @@ public class EiamSsoLoginService {
         EiamIdentityPo identity = requireIdentityByCode(username);
         identityGuard.assertLoginAllowed(identity.getEmployeeId());
         credentialService.changePassword(identity.getUid(), oldPassword, newPassword);
-        recordLogService.recordLogininfor(username, MptConstants.LOGIN_SUCCESS, "EIAM 凭据改密成功");
+        recordAudit(username, MptConstants.LOGIN_SUCCESS, "EIAM 凭据改密成功");
         return loadLoginUser(identity.getEmployeeId());
     }
 
@@ -138,6 +138,17 @@ public class EiamSsoLoginService {
         // 会话携带员工标识，供下游服务定位员工主数据
         loginUser.setEmployeeId(employeeId);
         return loginUser;
+    }
+
+    /**
+     * 登录审计（尽力而为）：审计写入失败不得影响登录结果或掩盖真实错误码
+     */
+    private void recordAudit(String username, String status, String message) {
+        try {
+            recordLogService.recordLogininfor(username, status, message);
+        } catch (RuntimeException e) {
+            log.warn("EIAM 登录审计写入失败：username={}, status={}, cause={}", username, status, e.getMessage());
+        }
     }
 
     private String failureMessage(RuntimeException e) {
