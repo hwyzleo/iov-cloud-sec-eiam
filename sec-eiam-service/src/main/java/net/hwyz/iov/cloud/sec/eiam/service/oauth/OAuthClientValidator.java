@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * OIDC 客户端校验（SEC-EIAM-DSN-CR-002 §10.4）
@@ -47,6 +48,10 @@ public class OAuthClientValidator {
         return client;
     }
 
+    /**
+     * 回调地址匹配：白名单项支持 `*` 通配（如 `http://*&#47;sso/callback`、`https://admin.example.com/*`）。
+     * 生产环境建议收敛为精确地址，避免任意主机回调（开放重定向风险）。
+     */
     private boolean matchesRedirect(String whitelist, String redirectUri) {
         if (!StringUtils.hasText(whitelist)) {
             return false;
@@ -54,6 +59,22 @@ public class OAuthClientValidator {
         return Arrays.stream(whitelist.split(","))
                 .map(String::trim)
                 .filter(StringUtils::hasText)
-                .anyMatch(uri -> uri.equals(redirectUri));
+                .anyMatch(uri -> uri.equals(redirectUri) || globMatches(uri, redirectUri));
+    }
+
+    private boolean globMatches(String pattern, String value) {
+        if (!pattern.contains("*")) {
+            return false;
+        }
+        StringBuilder regex = new StringBuilder("^");
+        for (char c : pattern.toCharArray()) {
+            if (c == '*') {
+                regex.append(".*");
+            } else {
+                regex.append(Pattern.quote(String.valueOf(c)));
+            }
+        }
+        regex.append("$");
+        return value.matches(regex.toString());
     }
 }

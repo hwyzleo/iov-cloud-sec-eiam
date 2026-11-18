@@ -57,7 +57,9 @@ public class OAuthController {
                           @RequestParam String redirect_uri,
                           @RequestParam(required = false) String state,
                           HttpServletResponse response) throws IOException {
-        clientValidator.validate(client_id, redirect_uri);
+        if (!validateClient(client_id, redirect_uri, response)) {
+            return;
+        }
 
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser == null) {
@@ -106,7 +108,9 @@ public class OAuthController {
                           @RequestParam String redirect_uri,
                           @RequestParam(required = false) String state,
                           HttpServletResponse response) throws IOException {
-        clientValidator.validate(client_id, redirect_uri);
+        if (!validateClient(client_id, redirect_uri, response)) {
+            return;
+        }
         response.setContentType("text/html;charset=UTF-8");
         StringBuilder html = new StringBuilder();
         html.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"/>")
@@ -136,7 +140,9 @@ public class OAuthController {
                         @RequestParam String redirect_uri,
                         @RequestParam(required = false) String state,
                         HttpServletResponse response) throws IOException {
-        clientValidator.validate(client_id, redirect_uri);
+        if (!validateClient(client_id, redirect_uri, response)) {
+            return;
+        }
         LoginUser loginUser = sysLoginService.login(username, password);
         Long employeeId = loginUser.getEmployeeId();
         if (employeeId == null) {
@@ -148,6 +154,25 @@ public class OAuthController {
         String location = redirect_uri + (redirect_uri.contains("?") ? "&" : "?") + "code=" + code
                 + (state == null ? "" : "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8));
         response.sendRedirect(location);
+    }
+
+    /**
+     * 校验客户端与回调地址；失败时直接输出结构化错误（不冒泡为 500）
+     */
+    private boolean validateClient(String clientId, String redirectUri, HttpServletResponse response) throws IOException {
+        try {
+            clientValidator.validate(clientId, redirectUri);
+            return true;
+        } catch (ServiceException e) {
+            EiamErrorCode errorCode = e.getMessage() != null && e.getMessage().contains("回调地址")
+                    ? EiamErrorCode.SSO_REDIRECT_URI_INVALID
+                    : EiamErrorCode.SSO_CLIENT_INVALID;
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":\"" + errorCode.getCode()
+                    + "\",\"message\":\"" + errorCode.getMessage() + "\"}");
+            return false;
+        }
     }
 
     private String escape(String value) {
