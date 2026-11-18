@@ -42,7 +42,27 @@ public enum EiamErrorCode implements ErrorCode {
     /**
      * MPT 侧未绑定该员工的账号
      */
-    MPT_USER_BINDING_MISSING("401007", "该员工尚未开通登录账号，请联系管理员");
+    MPT_USER_BINDING_MISSING("401007", "该员工尚未开通登录账号，请联系管理员"),
+
+    /**
+     * 凭据不存在或未开通（原地修订·第二次）
+     */
+    CREDENTIAL_NOT_FOUND("401008", "凭据不存在或尚未开通，请联系管理员"),
+
+    /**
+     * 密码错误（未达锁定阈值）
+     */
+    CREDENTIAL_PASSWORD_INCORRECT("401009", "工号或密码错误"),
+
+    /**
+     * 连续密码错误导致账号锁定
+     */
+    CREDENTIAL_ACCOUNT_LOCKED("401010", "密码错误次数过多，账号已锁定，请稍后再试或联系管理员解锁"),
+
+    /**
+     * 必须先修改密码（不签发 token/授权码）
+     */
+    CREDENTIAL_PWD_RESET_REQUIRED("401011", "首次登录或密码已重置，请先修改密码");
 
     private final String code;
 
@@ -56,6 +76,21 @@ public enum EiamErrorCode implements ErrorCode {
     @Override
     public String getCode() {
         return code;
+    }
+
+    /**
+     * 按错误码值查找枚举（未匹配返回 null）
+     *
+     * @param code 错误码值
+     * @return 错误码枚举
+     */
+    public static EiamErrorCode of(String code) {
+        for (EiamErrorCode value : values()) {
+            if (value.code.equals(code)) {
+                return value;
+            }
+        }
+        return null;
     }
 
     @Override

@@ -22,3 +22,10 @@ eiam:
   identity:
     # 紧急旁路：false 时可临时跳过身份目录校验（默认开启）
     check-enabled: true
+  credential:
+    # EIAM 自持员工登录凭据（SEC-EIAM-DSN-CR-002 原地修订·第二次）
+    max-failed: 5
+    lock-minutes: 15
+    reset-password-length: 14
+    # 惰性迁移开关：false 时不再用 MPT 密码初始化 EIAM 凭据（已迁移用户不受影响）
+    lazy-migration-enabled: true

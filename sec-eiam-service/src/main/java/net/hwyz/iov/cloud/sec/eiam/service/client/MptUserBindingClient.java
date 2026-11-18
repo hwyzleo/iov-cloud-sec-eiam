@@ -56,4 +56,15 @@ public interface MptUserBindingClient {
     ApiResponse<Integer> disableByEmployeeId(@PathVariable("employeeId") Long employeeId,
                                              @RequestHeader(SecurityConstants.FROM_SOURCE) String source);
 
+    /**
+     * 按员工ID启用账号（SEC-EIAM-DSN-CR-002 原地修订·第二次：身份目录启用联动）
+     *
+     * @param employeeId ORG 员工ID
+     * @param source     请求来源（inner）
+     * @return 影响账号数
+     */
+    @PostMapping("/provision/enable/{employeeId}")
+    ApiResponse<Integer> enableByEmployeeId(@PathVariable("employeeId") Long employeeId,
+                                            @RequestHeader(SecurityConstants.FROM_SOURCE) String source);
+
 }
